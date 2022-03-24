@@ -12,12 +12,7 @@ int main() {
     string input;
     while (input != "quit") {
         cin >> input;
-        try {
-            path = CommandExecutor::cwd(path, input);
-        } catch (exception e) {
-            cerr << e.what() << endl;
-        }
-        cout << path << endl;
+        cout << CommandExecutor::mkd(path, input) << endl;
     }
 
     return 0;

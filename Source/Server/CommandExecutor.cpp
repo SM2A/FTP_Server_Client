@@ -24,5 +24,9 @@ string CommandExecutor::cwd(string currentPath, string destination) {
 
     struct stat buffer;
     if (stat(destination.c_str(), &buffer) == 0)return destination;
-    else throw exception();
+    else return nullptr;
+}
+
+bool CommandExecutor::mkd(std::string currentPath, std::string path) {
+    return (mkdir((currentPath+"/"+path).c_str(), 0777) == 0);
 }
