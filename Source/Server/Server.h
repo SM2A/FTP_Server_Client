@@ -6,14 +6,14 @@
 class Server {
 
 private:
-    static Server* instance;
+    static Server *instance;
 
     Server() {}
 
 public:
     static std::string basePath;
 
-    static Server* getInstance();
+    static Server *getInstance();
 
 };
 

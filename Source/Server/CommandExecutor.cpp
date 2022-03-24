@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include "CommandExecutor.h"
+#include "../Common/static.h"
 
 using namespace std;
 
@@ -24,9 +25,19 @@ string CommandExecutor::cwd(string currentPath, string destination) {
 
     struct stat buffer;
     if (stat(destination.c_str(), &buffer) == 0)return destination;
-    else return nullptr;
+    else return ERROR;
 }
 
-bool CommandExecutor::mkd(std::string currentPath, std::string path) {
-    return (mkdir((currentPath+"/"+path).c_str(), 0777) == 0);
+bool CommandExecutor::mkd(string currentPath, string path) {
+    return (mkdir((currentPath + "/" + path).c_str(), 0777) == 0);
+}
+
+bool CommandExecutor::dele(string currentPath, string branch, string name) {
+
+    if (branch == "-f") return (remove((currentPath + "/" + name).c_str()) == 0);
+    else if (branch == "-d") {
+        if (cwd(currentPath, currentPath + "/" + name) != ERROR)
+            return (system(("rm -rf " + currentPath + "/" + name).c_str()) == 0);
+    }
+    return false;
 }

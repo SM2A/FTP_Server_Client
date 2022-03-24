@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Server* Server::instance = nullptr;
+Server *Server::instance = nullptr;
 string Server::basePath;
 
 Server *Server::getInstance() {

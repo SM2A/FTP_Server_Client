@@ -11,6 +11,7 @@ public:
     static std::string pwd();
     static std::string cwd(std::string currentPath, std::string destination);
     static bool mkd(std::string currentPath, std::string path);
+    static bool dele(std::string currentPath, std::string branch, std::string name);
 };
 
 

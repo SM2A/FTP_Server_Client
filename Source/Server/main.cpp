@@ -12,7 +12,7 @@ int main() {
     string input;
     while (input != "quit") {
         cin >> input;
-        cout << CommandExecutor::mkd(path, input) << endl;
+        cout << CommandExecutor::dele(path, "-d", input) << endl;
     }
 
     return 0;
