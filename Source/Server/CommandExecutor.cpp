@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <dirent.h>
 #include <sys/stat.h>
 #include "CommandExecutor.h"
 #include "../Common/static.h"
@@ -40,4 +41,13 @@ bool CommandExecutor::dele(string currentPath, string branch, string name) {
             return (system(("rm -rf " + currentPath + "/" + name).c_str()) == 0);
     }
     return false;
+}
+
+string CommandExecutor::ls(string currentPath) {
+    DIR *dir = opendir(currentPath.c_str());
+    struct dirent *entry;
+    if (dir == NULL) return "";
+    string files;
+    while ((entry = readdir(dir)) != NULL) files += (string(entry->d_name) + "\n");
+    return files;
 }
