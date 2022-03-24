@@ -1,0 +1,6 @@
+#ifndef FTP_SERVER_CLIENT_STATIC
+#define FTP_SERVER_CLIENT_STATIC
+
+#define SERVER_ADDRESS "127.0.0.1"
+
+#endif
