@@ -41,8 +41,7 @@ void Server::init(string path) {
 
         for (int i = 0; i < config["files"].size(); ++i) files.push_back(config["files"][i]);
         for (int i = 0; i < config["users"].size(); ++i) {
-            emptyID--;
-            users.insert({emptyID, new User(config["users"][i]["user"], config["users"][i]["password"],
+            users.push_back({-1, new User(config["users"][i]["user"], config["users"][i]["password"],
                                             (config["users"][i]["admin"] == "true"),
                                             stoi(string(config["users"][i]["size"])), basePath)});
         }

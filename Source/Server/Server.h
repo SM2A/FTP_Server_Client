@@ -10,7 +10,7 @@ class Server {
 
 private:
     static Server *instance;
-    std::map<int, User *> users;
+    std::vector<std::pair<int, User*>> users;
     std::vector<std::string> files;
     int commandPort;
     int dataPort;
@@ -18,9 +18,7 @@ private:
     int commandFD;
     int dataFD;
 
-    int emptyID;
-
-    Server() {emptyID = 0;}
+    Server() {}
 
 public:
     static std::string basePath;
