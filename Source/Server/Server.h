@@ -10,7 +10,7 @@ class Server {
 
 private:
     static Server *instance;
-    std::vector<std::pair<int, User*>> users;
+    std::vector<User*> users;
     std::vector<std::string> files;
     int commandPort;
     int dataPort;
@@ -18,7 +18,10 @@ private:
     int commandFD;
     int dataFD;
 
-    Server() {}
+    int lastUser;
+    int maxSD;
+
+    Server() {lastUser = 0;}
 
 public:
     static std::string basePath;
@@ -26,6 +29,10 @@ public:
 
     void init(std::string path);
     void startServer();
+    void listenCommand();
+    void listenData();
+    int acceptClientCommand();
+    int acceptClientData();
 
     int getCommandPort() { return commandPort;};
     int getDataPort() { return dataPort;};

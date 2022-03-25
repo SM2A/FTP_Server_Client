@@ -12,11 +12,18 @@ private:
     long capacity;
     std::string path;
     int stage;
+    int commandFD;
+    int dataFD;
 
 public:
     enum stage {ENTER_USER, ENTER_PASSWORD, LOGGED_IN, LOGGED_OUT};
 
     User(std::string _username_, std::string _password_, bool _isAdmin_, long _capacity_, std::string _path_);
+
+    int getCommandFd() const;
+    void setCommandFd(int commandFd);
+    int getDataFd() const;
+    void setDataFd(int dataFd);
 };
 
 #endif
