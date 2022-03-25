@@ -53,6 +53,23 @@ string CommandExecutor::ls(string currentPath) {
     return files;
 }
 
-bool CommandExecutor::rename(std::string currentPath, std::string currentName, std::string afterName) {
+bool CommandExecutor::rename(string currentPath, string currentName, string afterName) {
     return (std::rename((currentPath + "/" + currentName).c_str(), (currentPath + "/" + afterName).c_str()) == 0);
+}
+
+string CommandExecutor::help() {
+    string helper;
+    helper += "user <username>, Username of user for authentication\n";
+    helper += "pass <password>, Password of user for authentication\n";
+    helper += "pwd, Path of current working directory\n";
+    helper += "cwd <path>, Chane working directory to path\n";
+    helper += "dele <path>, Delete file or directory\n";
+    helper += "\t -f <file name>, Delete file with file name\n";
+    helper += "\t -d <path>, Delete directory with path\n";
+    helper += "ls, List of files in current working directory\n";
+    helper += "rename <from> <to>, Rename file\n";
+    helper += "retr <name>, Fetch file with given name\n";
+    helper += "help, Print user manual\n";
+    helper += "quit, Exit FTP server";
+    return helper;
 }

@@ -12,7 +12,7 @@ int main() {
     string input, o;
     while (input != "quit") {
         cin >> input >> o;
-        cout << CommandExecutor::rename(path, input, o) << endl;
+        cout << CommandExecutor::help() << endl;
     }
 
     return 0;
