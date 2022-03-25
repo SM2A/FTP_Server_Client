@@ -6,4 +6,5 @@ User::User(std::string _username_, std::string _password_, bool _isAdmin_, long 
     this->isAdmin = _isAdmin_;
     this->capacity = _capacity_;
     this->path = _path_;
+    this->stage = LOGGED_OUT;
 }
