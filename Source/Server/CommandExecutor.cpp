@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -50,4 +51,8 @@ string CommandExecutor::ls(string currentPath) {
     string files;
     while ((entry = readdir(dir)) != NULL) files += (string(entry->d_name) + "\n");
     return files;
+}
+
+bool CommandExecutor::rename(std::string currentPath, std::string currentName, std::string afterName) {
+    return (std::rename((currentPath + "/" + currentName).c_str(), (currentPath + "/" + afterName).c_str()) == 0);
 }
