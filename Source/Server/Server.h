@@ -15,6 +15,9 @@ private:
     int commandPort;
     int dataPort;
 
+    int commandFD;
+    int dataFD;
+
     int emptyID;
 
     Server() {emptyID = 0;}
@@ -24,6 +27,7 @@ public:
     static Server *getInstance();
 
     void init(std::string path);
+    void startServer();
 
     int getCommandPort() { return commandPort;};
     int getDataPort() { return dataPort;};
