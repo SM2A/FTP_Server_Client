@@ -12,6 +12,8 @@ private:
     static bool verify(std::string msg, std::string cmd, int count);
     static bool verify(std::string msg, std::string cmd, std::string branch, int count);
     static void response(int fd, int code);
+    static void response(int fd, int code, std::string branch);
+    static void response(int fd, int code, std::string branch, std::string name);
     static void enterCredential(std::string msg, User* user);
 
     friend class Server;
