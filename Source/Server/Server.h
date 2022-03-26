@@ -11,6 +11,7 @@ class Server {
 private:
     static Server *instance;
     std::vector<User*> users;
+    std::vector<User*> newUsers;
     std::vector<std::string> adminFiles;
     int commandPort;
     int dataPort;
@@ -25,6 +26,7 @@ private:
 
 public:
     static std::string basePath;
+
     static Server *getInstance();
 
     void init(std::string path);
@@ -34,8 +36,8 @@ public:
     int acceptClientCommand();
     int acceptClientData();
 
-    int getCommandPort() { return commandPort;};
-    int getDataPort() { return dataPort;};
+//    int getCommandPort() { return commandPort;};
+//    int getDataPort() { return dataPort;};
 };
 
 #endif

@@ -10,6 +10,7 @@ int main(int argc, char **argv) {
         else if (argc < 2) throw invalid_argument("No file entered");
         else if (argc > 2) throw invalid_argument("Fix arguments");
         Server::getInstance()->startServer();
+        Server::getInstance()->listenCommand();
     } catch (invalid_argument &e) {
         cerr << e.what() << endl;
     }

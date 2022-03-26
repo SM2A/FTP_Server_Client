@@ -11,7 +11,7 @@ User::User(std::string _username_, std::string _password_, bool _isAdmin_, long 
     this->dataFD = -1;
 }
 
-int User::getCommandFd() const {
+/*int User::getCommandFd() const {
     return commandFD;
 }
 
@@ -25,4 +25,4 @@ int User::getDataFd() const {
 
 void User::setDataFd(int dataFd) {
     dataFD = dataFd;
-}
+}*/
