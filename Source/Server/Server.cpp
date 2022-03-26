@@ -76,9 +76,7 @@ void Server::startServer() {
 }
 
 void Server::listenCommand() {
-
     fd_set master_set, working_set;
-    int new_socket;
 
     FD_ZERO(&master_set);
     maxSD = dataFD;
@@ -104,6 +102,7 @@ void Server::listenCommand() {
                                     "1 - Computer\n2 - Electric\n3 - Civil\n4 - Mechanic\n", new_socket);
                     send(new_socket, buffer, strlen(buffer), 0);*/
 
+                    cout << "Command Client Connected " << i << endl;
                     newUsers.push_back(new User("", "", false, 0, ""));
                     newUsers[lastUser]->stage = User::ENTER_USER;
                     newUsers[lastUser]->commandFD = new_socket;
@@ -125,7 +124,7 @@ void Server::listenCommand() {
                     User *user = findUser(i, COMMAND, newUsers);
                     string msg = string(buffer);
                     if (user != nullptr) {
-                        cout << "Client " << i << " : " << msg << endl;
+                        cout << "Command Client " << i << " : " << msg << endl;
                         if (user->stage == User::ENTER_USER) {
                             if (Command::verify(msg, "help", 1)) {
                                 Command::response(user->commandFD, 214);
@@ -141,11 +140,13 @@ void Server::listenCommand() {
                                 Command::response(user->commandFD, 214);
                             } else if (Command::verify(msg, "pass", 2)) {
                                 Command::enterCredential(msg, user);
-                                auto loggedInUser = findUser(user->username,user->password,users);
-                                if (loggedInUser != nullptr){
+                                auto loggedInUser = findUser(user->username, user->password, users);
+                                if (loggedInUser != nullptr) {
                                     loggedInUser->commandFD = user->commandFD;
                                     loggedInUser->stage = User::LOGGED_IN;
                                     Command::response(user->commandFD, 230);
+                                    removeUser(user->commandFD, COMMAND);
+                                    lastUser--;
                                 } else {
                                     user->stage = User::ENTER_USER;
                                     Command::response(user->commandFD, 430);
@@ -162,7 +163,7 @@ void Server::listenCommand() {
 
                             }*/
                         } else {
-                            cout << "Client " << i << " : " << msg << endl;
+                            cout << "Command Client " << i << " : " << msg << endl;
                         }
                     }
                 }
@@ -173,10 +174,8 @@ void Server::listenCommand() {
 
 void Server::listenData() {
     fd_set master_set, working_set;
-    int new_socket;
 
     FD_ZERO(&master_set);
-    maxSD = dataFD;
     FD_SET(dataFD, &master_set);
 
     while (true) {
@@ -191,50 +190,50 @@ void Server::listenData() {
                     FD_SET(new_socket, &master_set);
                     if (new_socket > maxSD) maxSD = new_socket;
 
-                    char output[BUFFER] = {0};
+                    /*char output[BUFFER] = {0};
                     sprintf(output, "New client with file descriptor %d connected\n", new_socket);
                     write(1, output, strlen(output));
 
                     sprintf(buffer, "Hello from server, you're client %d\nPlease choose your category :\n"
                                     "1 - Computer\n2 - Electric\n3 - Civil\n4 - Mechanic\n", new_socket);
-                    send(new_socket, buffer, strlen(buffer), 0);
+                    send(new_socket, buffer, strlen(buffer), 0);*/
 
-                    /*newUsers.push_back(new User("","", false,0,""));
-                    newUsers[lastUser]->stage = User::PENDING_AUTH;
-                    newUsers[lastUser]->commandFD = new_socket;
-                    lastUser++;*/
+                    cout << "Data Client Connected " << i << endl;
+                    newUsers.push_back(new User("", "", false, 0, ""));
+                    newUsers[lastUser]->stage = User::LOGGED_IN;
+                    newUsers[lastUser]->dataFD = new_socket;
+                    lastUser++;
                 } else {
                     int bytes_received;
                     bytes_received = recv(i, buffer, BUFFER, 0);
 
                     if (bytes_received == 0) {
-                        char output[BUFFER] = {0};
+                        /*char output[BUFFER] = {0};
                         sprintf(output, "Client with file descriptor %d disconnected\n", i);
-                        write(1, output, strlen(output));
+                        write(1, output, strlen(output));*/
 
                         close(i);
                         FD_CLR(i, &master_set);
                         continue;
                     }
-                    /*if (users[find_user(i)].stage == CHOOSE_GROUP) {
-                        int gp = choose_group(buffer);
-                        int gp_s = add_to_group(i, gp);
-                        users[find_user(i)].stage = WAITING_START;
-                        users[find_user(i)].group_category = gp;
-                        if (gp_s) start_group(gp);
-                    } else if (users[find_user(i)].stage == WAITING_START) {
-                        sprintf(buffer, "Please wait ...\n");
-                        send(i, buffer, strlen(buffer), 0);
-                    } else if (users[find_user(i)].stage == IN_CHAT) {
-                        int qa_file = open("QA.txt", O_APPEND | O_RDWR);
-                        if (qa_file < 0) qa_file = open("QA.txt", O_CREAT | O_RDWR);
-                        write(qa_file, buffer, strlen(buffer));
-                        close(qa_file);
-                    } else {
-                        char output[BUFFER] = {0};
-                        sprintf(output, "Client %d : %s", i, buffer);
-                        write(1, output, strlen(output));
-                    }*/
+
+                    auto user = findUser(i, DATA, newUsers);
+                    string msg = string(buffer);
+                    cout << "Data Client " << i << " : " << msg << endl;
+                    if (user != nullptr) {
+                        if (user->stage == User::LOGGED_IN) {
+                            string username, password;
+                            stringstream stream(msg);
+                            getline(stream, username, ' ');
+                            getline(stream, password, ' ');
+                            auto dataUser = findUser(username, password, users);
+                            if (dataUser != nullptr) dataUser->dataFD = user->dataFD;
+                            removeUser(user->dataFD,DATA);
+                            lastUser--;
+                        } else {
+                            cout << "Data Client " << i << " : " << msg << endl;
+                        }
+                    }
                 }
             }
         }
@@ -255,20 +254,32 @@ int Server::acceptClientData() {
     return client_fd;
 }
 
-User *Server::findUser(int fd, fileDescriptor type, vector<User*> _users_) {
+User *Server::findUser(int fd, fileDescriptor type, vector<User *> _users_) {
     for (auto user : _users_) {
         if ((user->commandFD == fd) && (type == COMMAND)) return user;
-        if ((user->dataFD == fd) && (type == DATA)) return user;
+        else if ((user->dataFD == fd) && (type == DATA)) return user;
     }
     return nullptr;
 }
 
-User *Server::findUser(string username, vector<User*> _users_) {
+User *Server::findUser(string username, vector<User *> _users_) {
     for (auto &user : _users_) if (user->username == username) return user;
     return nullptr;
 }
 
-User *Server::findUser(string username, string password, vector<User*> _users_) {
+User *Server::findUser(string username, string password, vector<User *> _users_) {
     for (auto &user : _users_) if ((user->username == username) && (user->password == password)) return user;
     return nullptr;
+}
+
+void Server::removeUser(int fd, fileDescriptor type) {
+    for (int i = 0; i < newUsers.size(); ++i) {
+        if ((newUsers[i]->commandFD == fd) && (type == COMMAND)) {
+            newUsers.erase(newUsers.begin() + i);
+            break;
+        } else if((newUsers[i]->dataFD == fd) && (type == DATA)){
+            newUsers.erase(newUsers.begin() + i);
+            break;
+        }
+    }
 }

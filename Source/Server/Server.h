@@ -20,6 +20,7 @@ private:
     int dataFD;
     enum fileDescriptor{COMMAND, DATA};
 
+    int new_socket;
     int lastUser;
     int maxSD;
 
@@ -30,6 +31,7 @@ private:
     User* findUser(int fd, fileDescriptor type, std::vector<User*> _users_);
     User* findUser(std::string username, std::vector<User*> _users_);
     User* findUser(std::string username, std::string password, std::vector<User*> _users_);
+    void removeUser(int fd, fileDescriptor type);
 
 public:
     static std::string basePath;

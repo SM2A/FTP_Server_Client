@@ -8,6 +8,9 @@ class Client {
 private:
     static Client *instance;
 
+    std::string username;
+    std::string password;
+
     int commandPort;
     int dataPort;
 

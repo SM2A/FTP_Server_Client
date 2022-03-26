@@ -21,8 +21,6 @@ bool Command::verify(string msg, std::string cmd, int count) {
     stringstream stream(msg);
     while (getline(stream, word, ' ')) input.push_back(word);
 
-    cout << input.size() << endl;
-
     if (input.size() != count) return false;
     if (input[0] != cmd) return false;
     if (cmd == "retr") if (input[1].empty() || input[2].empty()) return false;

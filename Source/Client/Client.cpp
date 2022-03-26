@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <ctime>
 #include <csignal>
+#include <sstream>
 
 using namespace std;
 using json = nlohmann::json;
@@ -65,16 +66,31 @@ void Client::startCommand() {
 
 void Client::startData() {
     dataFD = connectServer(dataPort);
+    string input = username + " " + password;
+    send(dataFD, input.c_str(), input.size(), 0);
 }
 
 void Client::sendCommand() {
     string input;
     getline(cin,input);
     send(commandFD, input.c_str(), input.size(), 0);
+
+    string cmd, value;
+    stringstream stream(input);
+    getline(stream, cmd, ' ');
+    if (getline(stream, value, ' ')){
+        if (cmd == "user") username = value;
+        else if (cmd == "pass") password = value;
+    }
 }
 
 void Client::receiveCommandResponse() {
     char buff[BUFFER] = {0};
     recv(commandFD, buff, 1024, 0);
     cout<<string(buff)<<endl;
+
+    string code;
+    stringstream stream((string(buff)));
+    getline(stream, code, ':');
+    if (code == "230") startData();
 }
