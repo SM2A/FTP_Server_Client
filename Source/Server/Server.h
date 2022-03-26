@@ -11,7 +11,7 @@ class Server {
 private:
     static Server *instance;
     std::vector<User*> users;
-    std::vector<std::string> files;
+    std::vector<std::string> adminFiles;
     int commandPort;
     int dataPort;
 

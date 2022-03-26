@@ -15,6 +15,7 @@ string CommandExecutor::pwd() {
 
 string CommandExecutor::cwd(string currentPath, string destination) {
     if (destination == "..") {
+        if ((currentPath.size() == 1) && (currentPath == "/")) return currentPath;
         for (int i = currentPath.size(); i != 0; i--) {
             if (currentPath[i] == '/') {
                 currentPath.erase(i);
