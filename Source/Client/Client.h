@@ -24,6 +24,8 @@ public:
     void init(std::string path);
     void startCommand();
     void startData();
+    void sendCommand();
+    void receiveCommandResponse();
 };
 
 #endif

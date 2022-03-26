@@ -15,7 +15,3 @@ jobs:
     - uses: actions/checkout@v2
     - name: Make
       run: make
-    - name: Run Sever
-      run: ./server.out Source/confi.json
-    - name: Run Client
-      run: ./client.out Source/confi.json

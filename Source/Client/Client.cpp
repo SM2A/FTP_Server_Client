@@ -3,6 +3,7 @@
 #include "../Common/json.h"
 #include "../Common/static.h"
 
+#include <iostream>
 
 #include <cstdio>
 #include <cstdlib>
@@ -64,4 +65,16 @@ void Client::startCommand() {
 
 void Client::startData() {
     dataFD = connectServer(dataPort);
+}
+
+void Client::sendCommand() {
+    string input;
+    getline(cin,input);
+    send(commandFD, input.c_str(), input.size(), 0);
+}
+
+void Client::receiveCommandResponse() {
+    char buff[BUFFER] = {0};
+    recv(commandFD, buff, 1024, 0);
+    cout<<string(buff)<<endl;
 }

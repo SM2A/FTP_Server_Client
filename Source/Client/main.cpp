@@ -9,6 +9,10 @@ int main(int argc, char **argv) {
         else if (argc < 2) throw invalid_argument("No file entered");
         else if (argc > 2) throw invalid_argument("Fix arguments");
         Client::getInstance()->startCommand();
+        while (true){
+            Client::getInstance()->sendCommand();
+            Client::getInstance()->receiveCommandResponse();
+        }
     } catch (invalid_argument &e) {
         cerr << e.what() << endl;
     }

@@ -18,11 +18,18 @@ private:
 
     int commandFD;
     int dataFD;
+    enum fileDescriptor{COMMAND, DATA};
 
     int lastUser;
     int maxSD;
 
     Server() {lastUser = 0;}
+
+    int acceptClientCommand();
+    int acceptClientData();
+    User* findUser(int fd, fileDescriptor type, std::vector<User*> _users_);
+    User* findUser(std::string username, std::vector<User*> _users_);
+    User* findUser(std::string username, std::string password, std::vector<User*> _users_);
 
 public:
     static std::string basePath;
@@ -33,11 +40,6 @@ public:
     void startServer();
     void listenCommand();
     void listenData();
-    int acceptClientCommand();
-    int acceptClientData();
-
-//    int getCommandPort() { return commandPort;};
-//    int getDataPort() { return dataPort;};
 };
 
 #endif
