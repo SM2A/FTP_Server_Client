@@ -15,7 +15,27 @@
 
 using namespace std;
 
-bool Command::verify(string msg, std::string cmd, int count) {
+bool Command::verify(string msg) {
+    string cmd;
+    stringstream stream(msg);
+    getline(stream, cmd, ' ');
+
+    if (cmd == "user") return true;
+    else if (cmd == "pass") return true;
+    else if (cmd == "pwd") return true;
+    else if (cmd == "mkd") return true;
+    else if (cmd == "dele") return true;
+    else if (cmd == "ls") return true;
+    else if (cmd == "cwd") return true;
+    else if (cmd == "rename") return true;
+    else if (cmd == "retr") return true;
+    else if (cmd == "help") return true;
+    else if (cmd == "quit") return true;
+
+    return false;
+}
+
+bool Command::verify(string msg, string cmd, int count) {
     string word;
     vector<string> input;
     stringstream stream(msg);
@@ -43,7 +63,7 @@ bool Command::verify(string msg, string cmd, string branch, int count) {
     return true;
 }
 
-void Command::enterCredential(std::string msg, User *user) {
+void Command::enterCredential(string msg, User *user) {
     string cmd, value;
     stringstream stream(msg);
     getline(stream, cmd, ' ');

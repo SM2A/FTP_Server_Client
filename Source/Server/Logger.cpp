@@ -1,5 +1,6 @@
 #include "Logger.h"
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -13,19 +14,23 @@ string Logger::getDateTime() {
 
 void Logger::log(string username, string msg) {
     ofstream file;
+    string log = getDateTime() + " : "
+                 + username + " "
+                 + msg;
     file.open(FILE_NAME, ios_base::app);
-    file << getDateTime() << " : "
-         << username << " "
-         << msg << endl;
+    file << log << endl;
     file.close();
+    cout << log << endl;
 }
 
 void Logger::log(string username, string msg, string argument) {
     ofstream file;
+    string log = getDateTime() + " : "
+                 + username + " "
+                 + msg + " "
+                 + argument;
     file.open(FILE_NAME, ios_base::app);
-    file << getDateTime() << " : "
-         << username << " "
-         << msg << " "
-         << argument << endl;
+    file << log << endl;
     file.close();
+    cout << log << endl;
 }

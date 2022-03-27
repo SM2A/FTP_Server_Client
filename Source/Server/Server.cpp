@@ -94,15 +94,7 @@ void Server::listenCommand() {
                     FD_SET(new_socket, &master_set);
                     if (new_socket > maxSD) maxSD = new_socket;
 
-                    /*char output[BUFFER] = {0};
-                    sprintf(output, "New client with file descriptor %d connected\n", new_socket);
-                    write(1, output, strlen(output));
-
-                    sprintf(buffer, "Hello from server, you're client %d\nPlease choose your category :\n"
-                                    "1 - Computer\n2 - Electric\n3 - Civil\n4 - Mechanic\n", new_socket);
-                    send(new_socket, buffer, strlen(buffer), 0);*/
-
-                    cout << "Command Client Connected " << i << endl;
+                    logger->log("FD " + to_string(i), "connected");
                     newUsers.push_back(new User("", "", false, 0, ""));
                     newUsers[lastUser]->stage = User::ENTER_USER;
                     newUsers[lastUser]->commandFD = new_socket;
@@ -112,28 +104,39 @@ void Server::listenCommand() {
                     bytes_received = recv(i, buffer, BUFFER, 0);
 
                     if (bytes_received == 0) {
-                        /*char output[BUFFER] = {0};
-                        sprintf(output, "Client with file descriptor %d disconnected\n", i);
-                        write(1, output, strlen(output));*/
-
                         close(i);
                         FD_CLR(i, &master_set);
+                        auto user = findUser(i, COMMAND, users);
+                        if (user != nullptr) logger->log(user->username, "logged out");
+                        else logger->log("FD " + to_string(i), "logged out");
                         continue;
                     }
 
-                    User *user = findUser(i, COMMAND, newUsers);
                     string msg = string(buffer);
+                    User *user = findUser(i, COMMAND, newUsers);
+
                     if (user != nullptr) {
-                        cout << "Command Client " << i << " : " << msg << endl;
                         if (user->stage == User::ENTER_USER) {
                             if (Command::verify(msg, "help", 1)) {
                                 Command::response(user->commandFD, 214);
+                                logger->log("FD " + to_string(i), "help");
+                            } else if (Command::verify(msg, "user", 1) || Command::verify(msg, "pass", 1)) {
+                                Command::response(user->commandFD, 501);
                             } else if (Command::verify(msg, "user", 2)) {
                                 Command::enterCredential(msg, user);
                                 Command::response(user->commandFD, 331);
                                 user->stage = User::ENTER_PASSWORD;
+                                logger->log("FD " + to_string(i), "user");
+                            } else if (Command::verify(msg, "quit", 1)) {
+                                Command::response(user->commandFD, 500);
+                                logger->log("FD " + to_string(i), "quit");
+                            } else if (Command::verify(msg, "pass", 2)) {
+                                Command::response(user->commandFD, 503);
+                                logger->log("FD " + to_string(i), "pass");
+                            } else if (Command::verify(msg)) {
+                                Command::response(user->commandFD, 332);
                             } else {
-
+                                Command::response(user->commandFD, 500);
                             }
                         } else if (user->stage == User::ENTER_PASSWORD) {
                             if (Command::verify(msg, "help", 1)) {
@@ -164,6 +167,7 @@ void Server::listenCommand() {
                             }*/
                         } else {
                             cout << "Command Client " << i << " : " << msg << endl;
+                            logger->log(findUser(i, COMMAND, users)->username, "says : ", msg);
                         }
                     }
                 }
@@ -228,7 +232,7 @@ void Server::listenData() {
                             getline(stream, password, ' ');
                             auto dataUser = findUser(username, password, users);
                             if (dataUser != nullptr) dataUser->dataFD = user->dataFD;
-                            removeUser(user->dataFD,DATA);
+                            removeUser(user->dataFD, DATA);
                             lastUser--;
                         } else {
                             cout << "Data Client " << i << " : " << msg << endl;
@@ -277,7 +281,7 @@ void Server::removeUser(int fd, fileDescriptor type) {
         if ((newUsers[i]->commandFD == fd) && (type == COMMAND)) {
             newUsers.erase(newUsers.begin() + i);
             break;
-        } else if((newUsers[i]->dataFD == fd) && (type == DATA)){
+        } else if ((newUsers[i]->dataFD == fd) && (type == DATA)) {
             newUsers.erase(newUsers.begin() + i);
             break;
         }
