@@ -3,15 +3,20 @@
 
 using namespace std;
 
+//Client* client;
+
 int main(int argc, char **argv) {
+
+    auto client = Client::getInstance();
+
     try {
-        if (argc == 2) Client::getInstance()->init(string(argv[1]));
+        if (argc == 2) client->init(string(argv[1]));
         else if (argc < 2) throw invalid_argument("No file entered");
         else if (argc > 2) throw invalid_argument("Fix arguments");
-        Client::getInstance()->startCommand();
+        client->startCommand();
         while (true){
-            Client::getInstance()->sendCommand();
-            Client::getInstance()->receiveCommandResponse();
+            client->sendCommand();
+            client->receiveCommandResponse();
         }
     } catch (invalid_argument &e) {
         cerr << e.what() << endl;

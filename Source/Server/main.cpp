@@ -3,36 +3,39 @@
 //#include <sstream>
 #include "Server.h"
 #include "CommandExecutor.h"
+#include "Logger.h"
 #include "Command.h"
 #include <pthread.h>
 
 using namespace std;
 
+Server* server;
+
 void *command(void *) {
-    Server::getInstance()->listenCommand();
+    server->listenCommand();
     return nullptr;
 }
 
 void *data(void *) {
-    Server::getInstance()->listenData();
+    server->listenData();
     return nullptr;
 }
 
 int main(int argc, char **argv) {
+
+    server = Server::getInstance();
+
     try {
-        if (argc == 2) Server::getInstance()->init(string(argv[1]));
+        if (argc == 2) server->init(string(argv[1]));
         else if (argc < 2) throw invalid_argument("No file entered");
         else if (argc > 2) throw invalid_argument("Fix arguments");
-        Server::getInstance()->startServer();
 
+        server->startServer();
 
         pthread_t threads[2];
         pthread_create(&threads[0], nullptr, &command, nullptr);
         pthread_create(&threads[1], nullptr, &data, nullptr);
         for (unsigned long thread : threads) pthread_join(thread, nullptr);
-
-//        Server::getInstance()->listenCommand();
-//        Server::getInstance()->listenData();
 
     } catch (invalid_argument &e) {
         cerr << e.what() << endl;

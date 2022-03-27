@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "User.h"
+#include "Logger.h"
 
 class Server {
 
@@ -24,7 +25,9 @@ private:
     int lastUser;
     int maxSD;
 
-    Server() {lastUser = 0;}
+    Logger* logger;
+
+    Server() {lastUser = 0; logger = new Logger();}
 
     int acceptClientCommand();
     int acceptClientData();
