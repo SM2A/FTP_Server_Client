@@ -15,22 +15,37 @@
 
 using namespace std;
 
-bool Command::verify(string msg) {
-    string cmd;
+bool Command::verify(string msg, bool count) {
+    string word;
+    vector<string> input;
     stringstream stream(msg);
-    getline(stream, cmd, ' ');
+    while (getline(stream, word, ' ')) input.push_back(word);
 
-    if (cmd == "user") return true;
-    else if (cmd == "pass") return true;
-    else if (cmd == "pwd") return true;
-    else if (cmd == "mkd") return true;
-    else if (cmd == "dele") return true;
-    else if (cmd == "ls") return true;
-    else if (cmd == "cwd") return true;
-    else if (cmd == "rename") return true;
-    else if (cmd == "retr") return true;
-    else if (cmd == "help") return true;
-    else if (cmd == "quit") return true;
+    if (!count) {
+        if (input[0] == "user") return true;
+        else if (input[0] == "pass") return true;
+        else if (input[0] == "pwd") return true;
+        else if (input[0] == "mkd") return true;
+        else if (input[0] == "dele") return true;
+        else if (input[0] == "ls") return true;
+        else if (input[0] == "cwd") return true;
+        else if (input[0] == "rename") return true;
+        else if (input[0] == "retr") return true;
+        else if (input[0] == "help") return true;
+        else if (input[0] == "quit") return true;
+    } else {
+        if (input[0] == "user" && input.size() == 2) return true;
+        else if (input[0] == "pass" && input.size() == 2) return true;
+        else if (input[0] == "pwd" && input.size() == 1) return true;
+        else if (input[0] == "mkd" && input.size() == 2) return true;
+        else if (input[0] == "dele" && input.size() == 3) return true;
+        else if (input[0] == "ls" && input.size() == 1) return true;
+        else if (input[0] == "cwd" && input.size() == 2) return true;
+        else if (input[0] == "rename" && input.size() == 3) return true;
+        else if (input[0] == "retr" && input.size() == 2) return true;
+        else if (input[0] == "help" && input.size() == 1) return true;
+        else if (input[0] == "quit" && input.size() == 1) return true;
+    }
 
     return false;
 }
@@ -108,8 +123,7 @@ void Command::response(int fd, int code, string branch, string name) {
     if (code == 250) {
         if ((branch == "-d") || (branch == "-f")) msg = name + " deleted.";
         else if (branch == "re") msg = "Successful change.";
-    }
-    else if (code == 257){
+    } else if (code == 257) {
         msg += (to_string(257) + ": ");
         if (branch == "pwd") msg = name;
         else if (branch == "mkd") msg = name + " created.";

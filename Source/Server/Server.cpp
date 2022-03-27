@@ -94,11 +94,12 @@ void Server::startServer() {
                     FD_SET(new_socket, &master_set);
                     if (new_socket > maxSD) maxSD = new_socket;
 
-                    logger->log("FD " + to_string(i), "connected");
                     newUsers.push_back(new User("", "", false, 0, ""));
                     newUsers[lastUser]->stage = User::ENTER_USER;
                     newUsers[lastUser]->commandFD = new_socket;
                     lastUser++;
+                    logger->log("FD " + to_string(new_socket), "connected");
+
                 } else {
                     int bytes_received;
                     bytes_received = recv(i, buffer, BUFFER, 0);
@@ -114,14 +115,13 @@ void Server::startServer() {
 
                     string msg = string(buffer);
                     User *user = findUser(i, COMMAND, newUsers);
+                    User *commandUser = findUser(i, COMMAND, users);
 
                     if (user != nullptr) {
                         if (user->stage == User::ENTER_USER) {
                             if (Command::verify(msg, "help", 1)) {
                                 Command::response(user->commandFD, 214);
                                 logger->log("FD " + to_string(i), "help");
-                            } else if (Command::verify(msg, "user", 1) || Command::verify(msg, "pass", 1)) {
-                                Command::response(user->commandFD, 501);
                             } else if (Command::verify(msg, "user", 2)) {
                                 Command::enterCredential(msg, user);
                                 Command::response(user->commandFD, 331);
@@ -130,11 +130,13 @@ void Server::startServer() {
                             } else if (Command::verify(msg, "quit", 1)) {
                                 Command::response(user->commandFD, 500);
                                 logger->log("FD " + to_string(i), "quit");
-                            } else if (Command::verify(msg, "pass", 2)) {
+                            } else if (Command::verify(msg, "pass", 2) || Command::verify(msg, "pass", 1)) {
                                 Command::response(user->commandFD, 503);
                                 logger->log("FD " + to_string(i), "pass");
-                            } else if (Command::verify(msg)) {
+                            } else if (Command::verify(msg, false)) {
                                 Command::response(user->commandFD, 332);
+                            } else if (Command::verify(msg, true)) {
+                                Command::response(user->commandFD, 501);
                             } else {
                                 Command::response(user->commandFD, 500);
                             }
@@ -153,30 +155,69 @@ void Server::startServer() {
                                     removeUser(user->commandFD, COMMAND);
                                     lastUser--;
                                     logger->log(user->username, "logged in");
-                                } else if (Command::verify(msg, "pass", 1)) {
-                                    Command::response(user->commandFD, 501);
                                 } else {
                                     user->stage = User::ENTER_USER;
                                     Command::response(user->commandFD, 430);
                                     logger->log("FD " + to_string(i), "wrong username or password");
                                 }
-                            } else if (!Command::verify(msg)) {
-                                Command::response(user->commandFD, 500);
+                            } else if (Command::verify(msg, false)) {
+                                Command::response(user->commandFD, 332);
+                            } else if (Command::verify(msg, true)) {
+                                Command::response(user->commandFD, 501);
                             } else {
                                 Command::response(user->commandFD, 503);
                             }
-                        } else if (user->stage == User::LOGGED_IN) {
-                            /*if (Command::verify(msg, "help", 1)) {
+                        }
+                    } else if (commandUser != nullptr) {
+                        if (commandUser->stage == User::LOGGED_IN) {
+                            if (Command::verify(msg, "help", 1)) {
+                                Command::response(commandUser->commandFD, 214);
+                                logger->log(commandUser->username, "pass");
+                            } else if (Command::verify(msg, "pwd", 1)) {
+                                Command::response(commandUser->commandFD, 257, "pwd", commandUser->path);
+                                logger->log(commandUser->username, "pwd");
+                            } else if (Command::verify(msg, "user", 2)) {
 
                             } else if (Command::verify(msg, "user", 2)) {
 
-                            } else {
+                            } else if (Command::verify(msg, "user", 2)) {
 
-                            }*/
-                        } else {
-                            cout << "Command Client " << i << " : " << msg << endl;
-                            logger->log(findUser(i, COMMAND, users)->username, "says : ", msg);
+                            } else if (Command::verify(msg, "user", 2)) {
+
+                            } else if (Command::verify(msg, "user", 2)) {
+
+                            } else if (Command::verify(msg, "user", 2)) {
+
+                            } else if (Command::verify(msg, "user", 2)) {
+
+                            } else if (Command::verify(msg, "user", 2)) {
+
+                            } else if (Command::verify(msg, "user", 2)) {
+
+                            } else if (Command::verify(msg, "user", 2)) {
+
+                            } else if (Command::verify(msg, "user", 2)) {
+
+                            } else if (Command::verify(msg, "user", 2)) {
+
+                            } else if (Command::verify(msg, "user", 2)) {
+
+                            } else if (Command::verify(msg, "pass", 2)) {
+                                Command::response(commandUser->commandFD, 500);
+                                logger->log(commandUser->username, "pass");
+                            } else if (Command::verify(msg, "user", 2)) {
+                                Command::response(commandUser->commandFD, 500);
+                                logger->log(commandUser->username, "user");
+                            } else if (Command::verify(msg, false)) {
+                                Command::response(commandUser->commandFD, 332);
+                            } else if (Command::verify(msg, true)) {
+                                Command::response(commandUser->commandFD, 501);
+                            } else {
+                                Command::response(commandUser->commandFD, 500);
+                            }
                         }
+                    } else {
+                        logger->log("FD " + to_string(i), " : ", msg);
                     }
                 }
             }
