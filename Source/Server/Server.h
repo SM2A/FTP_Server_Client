@@ -36,6 +36,7 @@ private:
     User* findUser(std::string username, std::vector<User*> _users_);
     User* findUser(std::string username, std::string password, std::vector<User*> _users_);
     void removeUser(int fd, fileDescriptor type);
+    bool canAccess(User* user, std::string name);
 
 public:
     static Server *getInstance();
@@ -43,7 +44,7 @@ public:
     void init(std::string path);
     void startServer();
 
-    [[noreturn]] void listenCommand();
+    void listenCommand();
     void listenData();
 };
 

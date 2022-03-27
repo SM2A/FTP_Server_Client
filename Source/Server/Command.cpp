@@ -71,8 +71,8 @@ bool Command::verify(string msg, string cmd, string branch, int count) {
 
     if (input.size() != count) return false;
     if (input[0] != cmd) return false;
-    if ((input[0] == cmd) && (input.size() == count)) return true;
-    if (cmd == "dele") if ((input[1] != branch) || input[2].empty()) return false;
+    if ((input[0] == cmd) && (input.size() == 1)) return true;
+    if (cmd == "dele") if ((input[1] != branch) || (input[2].empty())) return false;
     if (cmd == "retr") if (input[1].empty() || input[2].empty()) return false;
 
     return true;
@@ -132,11 +132,11 @@ void Command::response(int fd, int code, string branch, string name) {
     send(fd, msg.c_str(), msg.size(), 0);
 }
 
-string Command::getPath(string msg) {
-    string cmd, path;
+string Command::getPath(string msg, int i) {
+    string word;
+    vector<string> input;
     stringstream stream(msg);
-    getline(stream, cmd, ' ');
-    getline(stream, path, ' ');
+    while (getline(stream, word, ' ')) input.push_back(word);
 
-    return path;
+    return input[i-1];
 }

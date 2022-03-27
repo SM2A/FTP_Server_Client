@@ -6,6 +6,7 @@
 #include "Command.h"
 
 #include <iostream>
+#include <algorithm>
 
 #include <cstdio>
 #include <cstdlib>
@@ -74,7 +75,7 @@ void Server::startServer() {
     listen(dataFD, 10);
 }
 
-[[noreturn]] void Server::listenCommand() {
+void Server::listenCommand() {
     fd_set master_set, working_set;
 
     FD_ZERO(&master_set);
@@ -187,7 +188,7 @@ void Server::startServer() {
                                 commandUser->stage = User::ENTER_USER;
                                 logger->log(commandUser->username, "quit");
                             } else if (Command::verify(msg, "cwd", 2)) {
-                                string path = CommandExecutor::cwd(commandUser->path, Command::getPath(msg));
+                                string path = CommandExecutor::cwd(commandUser->path, Command::getPath(msg, 2));
                                 if (path == ERROR) Command::response(commandUser->commandFD, 500);
                                 else {
                                     Command::response(commandUser->commandFD, 250, "cwd", path);
@@ -199,15 +200,25 @@ void Server::startServer() {
                                 commandUser->path = basePath;
                                 logger->log(commandUser->username, "cwd");
                             } else if (Command::verify(msg, "mkd", 2)) {
-                                string name = Command::getPath(msg);
+                                string name = Command::getPath(msg, 2);
                                 if (CommandExecutor::mkd(commandUser->path, name))
                                     Command::response(commandUser->commandFD, 257, "mkd", name);
                                 else Command::response(commandUser->commandFD, 500);
-                                logger->log(commandUser->username, "mkd");
-                            } else if (Command::verify(msg, "user", 2)) {
-
-                            } else if (Command::verify(msg, "user", 2)) {
-
+                                logger->log(commandUser->username, "mkd", name);
+                            } else if (Command::verify(msg, "dele", "-f", 3)) {
+                                string name = Command::getPath(msg, 3);
+                                if (canAccess(commandUser, name)) {
+                                    if (CommandExecutor::dele(commandUser->path, "-f", name))
+                                        Command::response(commandUser->commandFD, 250, "-f", name);
+                                    else Command::response(commandUser->commandFD, 500);
+                                } else Command::response(commandUser->commandFD, 550);
+                                logger->log(commandUser->username, "dele", "-f " + name);
+                            } else if (Command::verify(msg, "dele", "-d", 3)) {
+                                string name = Command::getPath(msg, 3);
+                                if (CommandExecutor::dele(commandUser->path, "-d", name))
+                                    Command::response(commandUser->commandFD, 250, "-d", name);
+                                else Command::response(commandUser->commandFD, 500);
+                                logger->log(commandUser->username, "dele", "-d " + name);
                             } else if (Command::verify(msg, "user", 2)) {
 
                             } else if (Command::verify(msg, "user", 2)) {
@@ -356,4 +367,19 @@ void Server::removeUser(int fd, fileDescriptor type) {
             break;
         }
     }
+}
+
+bool Server::canAccess(User *user, string name) {
+    string fileName;
+
+    for (int i = name.size() - 1; i >= 0; i--) {
+        if (name[i] == '/') break;
+        fileName += name[i];
+    }
+
+    reverse(fileName.begin(), fileName.end());
+
+    for (string file : adminFiles) if ((!user->isAdmin) && (file == fileName)) return false;
+
+    return true;
 }
