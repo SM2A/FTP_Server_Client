@@ -219,8 +219,15 @@ void Server::listenCommand() {
                                     Command::response(commandUser->commandFD, 250, "-d", name);
                                 else Command::response(commandUser->commandFD, 500);
                                 logger->log(commandUser->username, "dele", "-d " + name);
-                            } else if (Command::verify(msg, "user", 2)) {
-
+                            } else if (Command::verify(msg, "rename", 3)) {
+                                string from = Command::getPath(msg, 2);
+                                string to = Command::getPath(msg, 3);
+                                if (canAccess(commandUser, from)) {
+                                    if (CommandExecutor::rename(commandUser->path, from, to))
+                                        Command::response(commandUser->commandFD, 250, "re", "");
+                                    else Command::response(commandUser->commandFD, 500);
+                                } else Command::response(commandUser->commandFD, 550);
+                                logger->log(commandUser->username, "rename", "from " + from + " to " + to);
                             } else if (Command::verify(msg, "user", 2)) {
 
                             } else if (Command::verify(msg, "user", 2)) {

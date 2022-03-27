@@ -90,7 +90,7 @@ void Command::enterCredential(string msg, User *user) {
 void Command::response(int fd, int code) {
     string msg;
 
-    if (code == 214) msg += ((to_string(214) + "\n") + CommandExecutor::help());
+    if (code == 214) msg += ("214\n" + CommandExecutor::help());
     else if (code == 331) msg = "331: User name okay, need password.";
     else if (code == 230) msg = "230: User logged in, proceed. Logged out if appropriate.";
     else if (code == 503) msg = "503: Bad sequence of commands.";
@@ -109,7 +109,7 @@ void Command::response(int fd, int code, string branch) {
     string msg;
 
     if (code == 226) {
-        msg += (to_string(226) + ": ");
+        msg += "226: ";
         if (branch == "ls") msg = "List transfer done.";
         else if (branch == "re") msg = "Successful Download.";
     }
@@ -121,10 +121,11 @@ void Command::response(int fd, int code, string branch, string name) {
     string msg;
 
     if (code == 250) {
+        msg += "250: ";
         if ((branch == "-d") || (branch == "-f")) msg = name + " deleted.";
         else if ((branch == "re") || (branch == "cwd")) msg = "Successful change.";
     } else if (code == 257) {
-        msg += (to_string(257) + ": ");
+        msg += "257: ";
         if (branch == "pwd") msg = name;
         else if (branch == "mkd") msg = name + " created.";
     }
