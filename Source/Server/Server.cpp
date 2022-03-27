@@ -108,8 +108,11 @@ void Server::startServer() {
                         close(i);
                         FD_CLR(i, &master_set);
                         auto user = findUser(i, COMMAND, users);
-                        if (user != nullptr) logger->log(user->username, "logged out");
-                        else logger->log("FD " + to_string(i), "disconnected");
+                        if (user != nullptr) logger->log(user->username, "disconnected");
+                        else{
+                            logger->log("FD " + to_string(i), "disconnected");
+                            removeUser(i, COMMAND);
+                        }
                         continue;
                     }
 
@@ -128,7 +131,7 @@ void Server::startServer() {
                                 user->stage = User::ENTER_PASSWORD;
                                 logger->log("FD " + to_string(i), "user");
                             } else if (Command::verify(msg, "quit", 1)) {
-                                Command::response(user->commandFD, 500);
+                                Command::response(user->commandFD, 221);
                                 logger->log("FD " + to_string(i), "quit");
                             } else if (Command::verify(msg, "pass", 2) || Command::verify(msg, "pass", 1)) {
                                 Command::response(user->commandFD, 503);
@@ -144,6 +147,9 @@ void Server::startServer() {
                             if (Command::verify(msg, "help", 1)) {
                                 Command::response(user->commandFD, 214);
                                 logger->log("FD " + to_string(i), "help");
+                            } else if (Command::verify(msg, "quit", 1)) {
+                                Command::response(user->commandFD, 221);
+                                logger->log("FD " + to_string(i), "quit");
                             } else if (Command::verify(msg, "pass", 2)) {
                                 logger->log("FD " + to_string(i), "pass");
                                 Command::enterCredential(msg, user);
@@ -172,12 +178,14 @@ void Server::startServer() {
                         if (commandUser->stage == User::LOGGED_IN) {
                             if (Command::verify(msg, "help", 1)) {
                                 Command::response(commandUser->commandFD, 214);
-                                logger->log(commandUser->username, "pass");
+                                logger->log(commandUser->username, "help");
                             } else if (Command::verify(msg, "pwd", 1)) {
                                 Command::response(commandUser->commandFD, 257, "pwd", commandUser->path);
                                 logger->log(commandUser->username, "pwd");
-                            } else if (Command::verify(msg, "user", 2)) {
-
+                            } else if (Command::verify(msg, "quit", 1)) {
+                                Command::response(commandUser->commandFD, 221);
+                                commandUser->stage = User::ENTER_USER;
+                                logger->log(commandUser->username, "quit");
                             } else if (Command::verify(msg, "user", 2)) {
 
                             } else if (Command::verify(msg, "user", 2)) {

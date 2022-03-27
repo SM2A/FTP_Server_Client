@@ -20,6 +20,7 @@ private:
     Client() {}
 
     int connectServer(int port);
+    bool responseCode(std::string msg, int code);
 
 public:
     static Client *getInstance();

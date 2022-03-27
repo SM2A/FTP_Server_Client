@@ -89,8 +89,14 @@ void Client::receiveCommandResponse() {
     recv(commandFD, buff, 1024, 0);
     cout<<string(buff)<<endl;
 
-    string code;
-    stringstream stream((string(buff)));
-    getline(stream, code, ':');
-    if (code == "230") startData();
+    if (responseCode(string(buff), 230)) startData();
+    if (responseCode(string(buff), 221)) exit(0);
+}
+
+bool Client::responseCode(string msg, int code) {
+    string _code_;
+    stringstream stream(msg);
+    getline(stream, _code_, ':');
+    if (_code_ == to_string(code)) return true;
+    return false;
 }
