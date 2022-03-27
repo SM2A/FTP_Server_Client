@@ -140,7 +140,7 @@ void Server::startServer() {
                             } else if (Command::verify(msg, false)) {
                                 Command::response(user->commandFD, 332);
                             } else if (Command::verify(msg, true)) {
-                                Command::response(user->commandFD, 501);
+                                Command::response(user->commandFD, 332);
                             } else {
                                 Command::response(user->commandFD, 500);
                             }
@@ -169,7 +169,7 @@ void Server::startServer() {
                             } else if (Command::verify(msg, false)) {
                                 Command::response(user->commandFD, 332);
                             } else if (Command::verify(msg, true)) {
-                                Command::response(user->commandFD, 501);
+                                Command::response(user->commandFD, 332);
                             } else {
                                 Command::response(user->commandFD, 503);
                             }
@@ -198,8 +198,12 @@ void Server::startServer() {
                                 Command::response(commandUser->commandFD, 250, "cwd", basePath);
                                 commandUser->path = basePath;
                                 logger->log(commandUser->username, "cwd");
-                            } else if (Command::verify(msg, "user", 2)) {
-
+                            } else if (Command::verify(msg, "mkd", 2)) {
+                                string name = Command::getPath(msg);
+                                if (CommandExecutor::mkd(commandUser->path, name))
+                                    Command::response(commandUser->commandFD, 257, "mkd", name);
+                                else Command::response(commandUser->commandFD, 500);
+                                logger->log(commandUser->username, "mkd");
                             } else if (Command::verify(msg, "user", 2)) {
 
                             } else if (Command::verify(msg, "user", 2)) {
@@ -225,7 +229,7 @@ void Server::startServer() {
                                 Command::response(commandUser->commandFD, 500);
                                 logger->log(commandUser->username, "user");
                             } else if (Command::verify(msg, false)) {
-                                Command::response(commandUser->commandFD, 332);
+                                Command::response(commandUser->commandFD, 501);
                             } else if (Command::verify(msg, true)) {
                                 Command::response(commandUser->commandFD, 501);
                             } else {
