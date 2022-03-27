@@ -21,6 +21,7 @@ private:
 
     int connectServer(int port);
     bool responseCode(std::string msg, int code);
+    void receiveDataResponse();
 
 public:
     static Client *getInstance();

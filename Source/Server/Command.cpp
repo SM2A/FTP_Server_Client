@@ -110,8 +110,8 @@ void Command::response(int fd, int code, string branch) {
 
     if (code == 226) {
         msg += "226: ";
-        if (branch == "ls") msg = "List transfer done.";
-        else if (branch == "re") msg = "Successful Download.";
+        if (branch == "ls") msg += "List transfer done.";
+        else if (branch == "re") msg += "Successful Download.";
     }
 
     send(fd, msg.c_str(), msg.size(), 0);
@@ -122,12 +122,12 @@ void Command::response(int fd, int code, string branch, string name) {
 
     if (code == 250) {
         msg += "250: ";
-        if ((branch == "-d") || (branch == "-f")) msg = name + " deleted.";
-        else if ((branch == "re") || (branch == "cwd")) msg = "Successful change.";
+        if ((branch == "-d") || (branch == "-f")) msg += (name + " deleted.");
+        else if ((branch == "re") || (branch == "cwd")) msg += "Successful change.";
     } else if (code == 257) {
         msg += "257: ";
-        if (branch == "pwd") msg = name;
-        else if (branch == "mkd") msg = name + " created.";
+        if (branch == "pwd") msg += name;
+        else if (branch == "mkd") msg += (name + " created.");
     }
 
     send(fd, msg.c_str(), msg.size(), 0);

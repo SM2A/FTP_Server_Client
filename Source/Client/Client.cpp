@@ -72,22 +72,25 @@ void Client::startData() {
 
 void Client::sendCommand() {
     string input;
-    getline(cin,input);
+    getline(cin, input);
     send(commandFD, input.c_str(), input.size(), 0);
 
     string cmd, value;
     stringstream stream(input);
     getline(stream, cmd, ' ');
-    if (getline(stream, value, ' ')){
+    if (getline(stream, value, ' ')) {
         if (cmd == "user") username = value;
         else if (cmd == "pass") password = value;
     }
+
+    if (cmd == "ls") receiveDataResponse();
+    if (cmd == "retr") receiveDataResponse();
 }
 
 void Client::receiveCommandResponse() {
     char buff[BUFFER] = {0};
     recv(commandFD, buff, 1024, 0);
-    cout<<string(buff)<<endl;
+    cout << string(buff) << endl;
 
     if (responseCode(string(buff), 230)) startData();
     if (responseCode(string(buff), 221)) exit(0);
@@ -99,4 +102,20 @@ bool Client::responseCode(string msg, int code) {
     getline(stream, _code_, ':');
     if (_code_ == to_string(code)) return true;
     return false;
+}
+
+void Client::receiveDataResponse() {
+    char buff[BUFFER] = {0};
+    recv(dataFD, buff, BUFFER, 0);
+
+    string type;
+    stringstream stream((string(buff)));
+    getline(stream, type);
+
+    if (type == CONSOLE) {
+        string line;
+        while (getline(stream, line)) cout << line << endl;
+        receiveCommandResponse();
+        sendCommand();
+    }
 }

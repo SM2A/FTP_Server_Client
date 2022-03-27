@@ -4,6 +4,7 @@
 #include "CommandExecutor.h"
 #include "../Common/static.h"
 #include "Command.h"
+#include "Data.h"
 
 #include <iostream>
 #include <algorithm>
@@ -228,8 +229,13 @@ void Server::listenCommand() {
                                     else Command::response(commandUser->commandFD, 500);
                                 } else Command::response(commandUser->commandFD, 550);
                                 logger->log(commandUser->username, "rename", "from " + from + " to " + to);
-                            } else if (Command::verify(msg, "user", 2)) {
-
+                            } else if (Command::verify(msg, "ls", 1)) {
+                                string ls = CONSOLE;
+                                ls += "\n";
+                                ls += CommandExecutor::ls(commandUser->path);
+                                Data::response(commandUser->dataFD, ls);
+                                Command::response(commandUser->commandFD, 226, "ls");
+                                logger->log(commandUser->username, "ls");
                             } else if (Command::verify(msg, "user", 2)) {
 
                             } else if (Command::verify(msg, "user", 2)) {
@@ -281,15 +287,6 @@ void Server::listenData() {
                     FD_SET(new_socket, &master_set);
                     if (new_socket > maxSD) maxSD = new_socket;
 
-                    /*char output[BUFFER] = {0};
-                    sprintf(output, "New client with file descriptor %d connected\n", new_socket);
-                    write(1, output, strlen(output));
-
-                    sprintf(buffer, "Hello from server, you're client %d\nPlease choose your category :\n"
-                                    "1 - Computer\n2 - Electric\n3 - Civil\n4 - Mechanic\n", new_socket);
-                    send(new_socket, buffer, strlen(buffer), 0);*/
-
-                    cout << "Data Client Connected " << i << endl;
                     newUsers.push_back(new User("", "", false, 0, ""));
                     newUsers[lastUser]->stage = User::LOGGED_IN;
                     newUsers[lastUser]->dataFD = new_socket;
@@ -299,18 +296,13 @@ void Server::listenData() {
                     bytes_received = recv(i, buffer, BUFFER, 0);
 
                     if (bytes_received == 0) {
-                        /*char output[BUFFER] = {0};
-                        sprintf(output, "Client with file descriptor %d disconnected\n", i);
-                        write(1, output, strlen(output));*/
-
                         close(i);
                         FD_CLR(i, &master_set);
                         continue;
                     }
 
-                    auto user = findUser(i, DATA, newUsers);
                     string msg = string(buffer);
-                    cout << "Data Client " << i << " : " << msg << endl;
+                    auto user = findUser(i, DATA, newUsers);
                     if (user != nullptr) {
                         if (user->stage == User::LOGGED_IN) {
                             string username, password;
@@ -321,7 +313,7 @@ void Server::listenData() {
                             if (dataUser != nullptr) dataUser->dataFD = user->dataFD;
                             removeUser(user->dataFD, DATA);
                         } else {
-                            cout << "Data Client " << i << " : " << msg << endl;
+                            logger->log("FD " + to_string(i), " : ", msg);
                         }
                     }
                 }

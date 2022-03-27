@@ -3,8 +3,6 @@
 
 using namespace std;
 
-//Client* client;
-
 int main(int argc, char **argv) {
 
     auto client = Client::getInstance();

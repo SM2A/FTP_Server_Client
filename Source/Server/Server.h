@@ -1,7 +1,6 @@
 #ifndef FTP_SERVER_CLIENT_SERVER
 #define FTP_SERVER_CLIENT_SERVER
 
-#include <map>
 #include <string>
 #include <vector>
 #include "User.h"
