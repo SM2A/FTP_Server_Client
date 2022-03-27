@@ -122,7 +122,7 @@ void Command::response(int fd, int code, string branch, string name) {
 
     if (code == 250) {
         if ((branch == "-d") || (branch == "-f")) msg = name + " deleted.";
-        else if (branch == "re") msg = "Successful change.";
+        else if ((branch == "re") || (branch == "cwd")) msg = "Successful change.";
     } else if (code == 257) {
         msg += (to_string(257) + ": ");
         if (branch == "pwd") msg = name;
@@ -130,4 +130,13 @@ void Command::response(int fd, int code, string branch, string name) {
     }
 
     send(fd, msg.c_str(), msg.size(), 0);
+}
+
+string Command::getPath(string msg) {
+    string cmd, path;
+    stringstream stream(msg);
+    getline(stream, cmd, ' ');
+    getline(stream, path, ' ');
+
+    return path;
 }

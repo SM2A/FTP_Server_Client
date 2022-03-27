@@ -20,7 +20,6 @@ using namespace std;
 using json = nlohmann::json;
 
 Server *Server::instance = nullptr;
-string Server::basePath;
 
 Server *Server::getInstance() {
     if (instance == nullptr) instance = new Server();
@@ -108,8 +107,10 @@ void Server::startServer() {
                         close(i);
                         FD_CLR(i, &master_set);
                         auto user = findUser(i, COMMAND, users);
-                        if (user != nullptr) logger->log(user->username, "disconnected");
-                        else{
+                        if (user != nullptr) {
+                            logger->log(user->username, "disconnected");
+                            user->stage = User::ENTER_USER;
+                        } else {
                             logger->log("FD " + to_string(i), "disconnected");
                             removeUser(i, COMMAND);
                         }
@@ -159,7 +160,6 @@ void Server::startServer() {
                                     loggedInUser->stage = User::LOGGED_IN;
                                     Command::response(user->commandFD, 230);
                                     removeUser(user->commandFD, COMMAND);
-                                    lastUser--;
                                     logger->log(user->username, "logged in");
                                 } else {
                                     user->stage = User::ENTER_USER;
@@ -186,10 +186,18 @@ void Server::startServer() {
                                 Command::response(commandUser->commandFD, 221);
                                 commandUser->stage = User::ENTER_USER;
                                 logger->log(commandUser->username, "quit");
-                            } else if (Command::verify(msg, "user", 2)) {
-
-                            } else if (Command::verify(msg, "user", 2)) {
-
+                            } else if (Command::verify(msg, "cwd", 2)) {
+                                string path = CommandExecutor::cwd(commandUser->path, Command::getPath(msg));
+                                if (path == ERROR) Command::response(commandUser->commandFD, 500);
+                                else {
+                                    Command::response(commandUser->commandFD, 250, "cwd", path);
+                                    commandUser->path = path;
+                                }
+                                logger->log(commandUser->username, "cwd");
+                            } else if (Command::verify(msg, "cwd", 1)) {
+                                Command::response(commandUser->commandFD, 250, "cwd", basePath);
+                                commandUser->path = basePath;
+                                logger->log(commandUser->username, "cwd");
                             } else if (Command::verify(msg, "user", 2)) {
 
                             } else if (Command::verify(msg, "user", 2)) {
@@ -290,7 +298,6 @@ void Server::listenData() {
                             auto dataUser = findUser(username, password, users);
                             if (dataUser != nullptr) dataUser->dataFD = user->dataFD;
                             removeUser(user->dataFD, DATA);
-                            lastUser--;
                         } else {
                             cout << "Data Client " << i << " : " << msg << endl;
                         }
@@ -337,9 +344,11 @@ void Server::removeUser(int fd, fileDescriptor type) {
     for (int i = 0; i < newUsers.size(); ++i) {
         if ((newUsers[i]->commandFD == fd) && (type == COMMAND)) {
             newUsers.erase(newUsers.begin() + i);
+            lastUser--;
             break;
         } else if ((newUsers[i]->dataFD == fd) && (type == DATA)) {
             newUsers.erase(newUsers.begin() + i);
+            lastUser--;
             break;
         }
     }

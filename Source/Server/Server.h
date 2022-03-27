@@ -20,6 +20,7 @@ private:
     int commandFD;
     int dataFD;
     enum fileDescriptor{COMMAND, DATA};
+    std::string basePath;
 
     int new_socket;
     int lastUser;
@@ -37,8 +38,6 @@ private:
     void removeUser(int fd, fileDescriptor type);
 
 public:
-    static std::string basePath;
-
     static Server *getInstance();
 
     void init(std::string path);
