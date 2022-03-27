@@ -75,7 +75,7 @@ void Server::startServer() {
     listen(dataFD, 10);
 }
 
-void Server::listenCommand() {
+[[noreturn]] void Server::listenCommand() {
     fd_set master_set, working_set;
 
     FD_ZERO(&master_set);
@@ -108,7 +108,7 @@ void Server::listenCommand() {
                         FD_CLR(i, &master_set);
                         auto user = findUser(i, COMMAND, users);
                         if (user != nullptr) logger->log(user->username, "logged out");
-                        else logger->log("FD " + to_string(i), "logged out");
+                        else logger->log("FD " + to_string(i), "disconnected");
                         continue;
                     }
 
@@ -141,7 +141,9 @@ void Server::listenCommand() {
                         } else if (user->stage == User::ENTER_PASSWORD) {
                             if (Command::verify(msg, "help", 1)) {
                                 Command::response(user->commandFD, 214);
+                                logger->log("FD " + to_string(i), "help");
                             } else if (Command::verify(msg, "pass", 2)) {
+                                logger->log("FD " + to_string(i), "pass");
                                 Command::enterCredential(msg, user);
                                 auto loggedInUser = findUser(user->username, user->password, users);
                                 if (loggedInUser != nullptr) {
@@ -150,12 +152,18 @@ void Server::listenCommand() {
                                     Command::response(user->commandFD, 230);
                                     removeUser(user->commandFD, COMMAND);
                                     lastUser--;
+                                    logger->log(user->username, "logged in");
+                                } else if (Command::verify(msg, "pass", 1)) {
+                                    Command::response(user->commandFD, 501);
                                 } else {
                                     user->stage = User::ENTER_USER;
                                     Command::response(user->commandFD, 430);
+                                    logger->log("FD " + to_string(i), "wrong username or password");
                                 }
+                            } else if (!Command::verify(msg)) {
+                                Command::response(user->commandFD, 500);
                             } else {
-
+                                Command::response(user->commandFD, 503);
                             }
                         } else if (user->stage == User::LOGGED_IN) {
                             /*if (Command::verify(msg, "help", 1)) {

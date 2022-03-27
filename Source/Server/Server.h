@@ -43,7 +43,8 @@ public:
 
     void init(std::string path);
     void startServer();
-    void listenCommand();
+
+    [[noreturn]] void listenCommand();
     void listenData();
 };
 
