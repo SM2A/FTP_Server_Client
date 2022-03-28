@@ -1,21 +1,15 @@
 #include <fstream>
-#include "Client.h"
-#include "../Common/json.h"
-#include "../Common/static.h"
-
-#include <iostream>
-
-#include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <sstream>
+#include "Client.h"
+#include <iostream>
 #include <unistd.h>
-#include <fcntl.h>
+#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <cstring>
-#include <arpa/inet.h>
-#include <ctime>
-#include <csignal>
-#include <sstream>
+#include "../Common/json.h"
+#include "../Common/static.h"
 
 using namespace std;
 using json = nlohmann::json;
@@ -51,11 +45,8 @@ int Client::connectServer(int port) {
     server_address.sin_port = htons(port);
     server_address.sin_addr.s_addr = inet_addr(SERVER_ADDRESS);
 
-    if (connect(fd, (struct sockaddr *) &server_address, sizeof(server_address)) < 0) {
-        //todo error
-        write(1, "Error connecting to server\n", strlen("Error connecting to server\n"));
-        exit(0);
-    }
+    if (connect(fd, (struct sockaddr *) &server_address, sizeof(server_address)) < 0)
+        throw runtime_error("Error connecting to server");
 
     return fd;
 }
@@ -89,7 +80,7 @@ void Client::sendCommand() {
 
 void Client::receiveCommandResponse() {
     char buff[BUFFER] = {0};
-    recv(commandFD, buff, 1024, 0);
+    recv(commandFD, buff, BUFFER, 0);
     cout << string(buff) << endl;
 
     if (responseCode(string(buff), 230)) startData();

@@ -1,22 +1,16 @@
+#include "Data.h"
 #include <fstream>
+#include <cstdlib>
 #include "Server.h"
+#include <unistd.h>
+#include <iostream>
+#include "Command.h"
+#include <algorithm>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include "../Common/json.h"
 #include "CommandExecutor.h"
 #include "../Common/static.h"
-#include "Command.h"
-#include "Data.h"
-
-#include <iostream>
-#include <algorithm>
-
-#include <cstdio>
-#include <cstdlib>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <ctime>
 
 using namespace std;
 using json = nlohmann::json;
@@ -240,7 +234,8 @@ void Server::listenCommand() {
                                 string name = Command::getPath(msg, 2);
                                 if (canAccess(commandUser, name)) {
                                     long size = CommandExecutor::getFileSize(name);
-                                    if ((size != -1) && (size < 1900)) {
+                                    if ((size != -1) && (size < (BUFFER - 200))) {
+                                        size /= 1024;
                                         if (commandUser->capacity >= size) {
                                             commandUser->capacity -= size;
                                             string ls = _FILE_;

@@ -18,6 +18,10 @@ int main(int argc, char **argv) {
         }
     } catch (invalid_argument &e) {
         cerr << e.what() << endl;
+        exit(0);
+    } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+        exit(0);
     }
     return 0;
 }

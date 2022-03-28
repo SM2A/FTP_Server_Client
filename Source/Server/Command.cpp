@@ -1,17 +1,7 @@
 #include <vector>
-#include <cstring>
 #include "Command.h"
-#include "CommandExecutor.h"
-
-#include <iostream>
-#include <cstdio>
-#include <cstdlib>
-#include <unistd.h>
-#include <fcntl.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <ctime>
+#include "CommandExecutor.h"
 
 using namespace std;
 
@@ -138,6 +128,5 @@ string Command::getPath(string msg, int i) {
     vector<string> input;
     stringstream stream(msg);
     while (getline(stream, word, ' ')) input.push_back(word);
-
-    return input[i-1];
+    return input[i - 1];
 }

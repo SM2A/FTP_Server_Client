@@ -1,5 +1,5 @@
-#include "Logger.h"
 #include <fstream>
+#include "Logger.h"
 #include <iostream>
 
 using namespace std;

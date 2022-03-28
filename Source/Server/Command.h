@@ -15,7 +15,7 @@ private:
     static void response(int fd, int code);
     static void response(int fd, int code, std::string branch);
     static void response(int fd, int code, std::string branch, std::string name);
-    static void enterCredential(std::string msg, User* user);
+    static void enterCredential(std::string msg, User *user);
     static std::string getPath(std::string msg, int i);
 
     friend class Server;

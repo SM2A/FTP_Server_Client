@@ -1,15 +1,12 @@
-#include <iostream>
 #include <string>
-//#include <sstream>
+#include <iostream>
 #include "Server.h"
-#include "CommandExecutor.h"
-#include "Logger.h"
 #include "Command.h"
 #include <pthread.h>
 
 using namespace std;
 
-Server* server;
+Server *server;
 
 void *command(void *) {
     server->listenCommand();
