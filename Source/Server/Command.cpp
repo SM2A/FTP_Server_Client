@@ -30,7 +30,7 @@ bool Command::verify(string msg, bool count) {
         else if (input[0] == "mkd" && input.size() == 2) return true;
         else if (input[0] == "dele" && input.size() == 3) return true;
         else if (input[0] == "ls" && input.size() == 1) return true;
-        else if (input[0] == "cwd" && input.size() == 2) return true;
+        else if ((input[0] == "cwd") && ((input.size() == 2) || (input.size() == 1))) return true;
         else if (input[0] == "rename" && input.size() == 3) return true;
         else if (input[0] == "retr" && input.size() == 2) return true;
         else if (input[0] == "help" && input.size() == 1) return true;

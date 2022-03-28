@@ -186,6 +186,7 @@ void Server::listenCommand() {
                                 string path = CommandExecutor::cwd(commandUser->path, Command::getPath(msg, 2));
                                 if (path == ERROR) Command::response(commandUser->commandFD, 500);
                                 else {
+//                                    if (path.size() < Server::basePath.size()) path = Server::basePath; // If client can't get out of server directory
                                     Command::response(commandUser->commandFD, 250, "cwd", path);
                                     commandUser->path = path;
                                 }
@@ -381,6 +382,7 @@ void Server::removeUser(int fd, fileDescriptor type) {
 }
 
 bool Server::canAccess(User *user, string name) {
+    if (user->isAdmin) return true;
     string fileName = CommandExecutor::getFileName(name);
     for (string file : adminFiles) if ((!user->isAdmin) && (file == fileName)) return false;
     return true;
