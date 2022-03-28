@@ -84,7 +84,7 @@ void Client::sendCommand() {
     }
 
     if (cmd == "ls") receiveDataResponse();
-    if (cmd == "retr") receiveDataResponse();
+    if ((cmd == "retr") && (!value.empty())) receiveDataResponse();
 }
 
 void Client::receiveCommandResponse() {
@@ -115,7 +115,15 @@ void Client::receiveDataResponse() {
     if (type == CONSOLE) {
         string line;
         while (getline(stream, line)) cout << line << endl;
-        receiveCommandResponse();
-        sendCommand();
+    } else if (type == _FILE_) {
+        string line, content, path;
+        getline(stream, path);
+        while (getline(stream, line, '\n')) content += (line + "\n");
+        ofstream file(path);
+        file << content;
+        file.close();
     }
+
+    receiveCommandResponse();
+    sendCommand();
 }

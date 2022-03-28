@@ -236,16 +236,33 @@ void Server::listenCommand() {
                                 Data::response(commandUser->dataFD, ls);
                                 Command::response(commandUser->commandFD, 226, "ls");
                                 logger->log(commandUser->username, "ls");
-                            } else if (Command::verify(msg, "user", 2)) {
-
-                            } else if (Command::verify(msg, "user", 2)) {
-
-                            } else if (Command::verify(msg, "user", 2)) {
-
-                            } else if (Command::verify(msg, "user", 2)) {
-
-                            } else if (Command::verify(msg, "user", 2)) {
-
+                            } else if (Command::verify(msg, "retr", 2)) {
+                                string name = Command::getPath(msg, 2);
+                                if (canAccess(commandUser, name)) {
+                                    long size = CommandExecutor::getFileSize(name);
+                                    if ((size != -1) && (size < 1900)) {
+                                        if (commandUser->capacity >= size) {
+                                            commandUser->capacity -= size;
+                                            string ls = _FILE_;
+                                            ls += "\n";
+                                            ls += (commandUser->path + "/" + CommandExecutor::getFileName(name));
+                                            ls += "\n";
+                                            ls += CommandExecutor::getFileContent(name);
+                                            Data::response(commandUser->dataFD, ls);
+                                            Command::response(commandUser->commandFD, 226, "re");
+                                        } else {
+                                            Data::response(commandUser->dataFD, ERROR);
+                                            Command::response(commandUser->commandFD, 425);
+                                        }
+                                    } else {
+                                        Data::response(commandUser->dataFD, ERROR);
+                                        Command::response(commandUser->commandFD, 500);
+                                    }
+                                } else {
+                                    Data::response(commandUser->dataFD, ERROR);
+                                    Command::response(commandUser->commandFD, 550);
+                                }
+                                logger->log(commandUser->username, "retr", name);
                             } else if (Command::verify(msg, "pass", 2)) {
                                 Command::response(commandUser->commandFD, 500);
                                 logger->log(commandUser->username, "pass");
@@ -369,16 +386,7 @@ void Server::removeUser(int fd, fileDescriptor type) {
 }
 
 bool Server::canAccess(User *user, string name) {
-    string fileName;
-
-    for (int i = name.size() - 1; i >= 0; i--) {
-        if (name[i] == '/') break;
-        fileName += name[i];
-    }
-
-    reverse(fileName.begin(), fileName.end());
-
+    string fileName = CommandExecutor::getFileName(name);
     for (string file : adminFiles) if ((!user->isAdmin) && (file == fileName)) return false;
-
     return true;
 }

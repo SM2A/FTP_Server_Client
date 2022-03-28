@@ -4,6 +4,8 @@
 #include <sys/stat.h>
 #include "CommandExecutor.h"
 #include "../Common/static.h"
+#include <fstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -73,4 +75,28 @@ string CommandExecutor::help() {
     helper += "help, Print user manual\n";
     helper += "quit, Exit FTP server";
     return helper;
+}
+
+long CommandExecutor::getFileSize(string path) {
+    ifstream file(path, std::ifstream::ate | std::ifstream::binary);
+    if (!file.good()) return -1;
+    return file.tellg();
+}
+
+string CommandExecutor::getFileContent(string path) {
+    ifstream file(path);
+    string content, line;
+    while (getline(file, line)) content += (line + "\n");
+    file.close();
+    return content;
+}
+
+string CommandExecutor::getFileName(std::string path) {
+    string fileName;
+    for (int i = path.size() - 1; i >= 0; i--) {
+        if (path[i] == '/') break;
+        fileName += path[i];
+    }
+    reverse(fileName.begin(), fileName.end());
+    return fileName;
 }

@@ -13,6 +13,9 @@ public:
     static std::string ls(std::string currentPath);
     static bool rename(std::string currentPath, std::string currentName,std::string afterName);
     static std::string help();
+    static std::string getFileName(std::string path);
+    static long getFileSize(std::string path);
+    static std::string getFileContent(std::string path);
 };
 
 
