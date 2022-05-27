@@ -1,2 +1,2 @@
-# FTP Server Client
-Computer Networks Course Computer Assignment 1
+# FTP Server/Client
+This repository contains my Computer Networks course Projects (Spring 2022) at University of Tehran.
